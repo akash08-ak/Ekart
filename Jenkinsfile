@@ -11,6 +11,15 @@ pipeline {
     }
 
     stages {
+        stage('Clean Build') {
+            steps {
+                script {
+                    // Run clean build
+                    sh 'mvn clean install'
+                }
+            }
+        }
+
         stage('git checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/ygminds73/Ekart.git'
@@ -64,34 +73,36 @@ pipeline {
         stage('build and Tag docker image') {
             steps {
                 script {
-                        sh "docker build -t akashshewale0801/ekart:latest -f docker/Dockerfile ."
-                    }
-            }
-        }
-
-        stage('Push image to Hub'){
-            steps{
-                script{
-                   withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                   sh 'docker login -u akashshewale0801 -p ${dockerhubpwd}'}
-                   sh 'docker push akashshewale0801/ekart:latest'
+                    sh "docker build -t akashshewale0801/ekart:latest -f docker/Dockerfile ."
                 }
             }
         }
-        stage('EKS and Kubectl configuration'){
-            steps{
-                script{
+
+        stage('Push image to Hub') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                        sh 'docker login -u akashshewale0801 -p ${dockerhubpwd}'
+                    }
+                    sh 'docker push akashshewale0801/ekart:latest'
+                }
+            }
+        }
+
+        stage('EKS and Kubectl configuration') {
+            steps {
+                script {
                     sh 'aws eks update-kubeconfig --region ap-south-1 --name ankit-cluster'
                 }
             }
         }
-        stage('Deploy to k8s'){
-            steps{
-                script{
+
+        stage('Deploy to k8s') {
+            steps {
+                script {
                     sh 'kubectl apply -f deploymentservice.yml'
                 }
             }
         }
     }
-
 }
