@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
     }
@@ -9,6 +9,17 @@ pipeline {
         maven 'maven3'
         jdk 'jdk-17'
     }
+
+
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                script {
+                    deleteDir()  // This clears the workspace before proceeding
+                }
+            }
+        }
+
 
     stages {
         stage('git checkout') {
