@@ -17,6 +17,15 @@ pipeline {
             }
         }
 
+        stage('Replace pom.xml') {
+            steps {
+                script {
+                    // Download the pom.xml from the GitHub URL using curl
+                    sh 'curl -L -o pom.xml https://raw.githubusercontent.com/akash08-ak/Ekart/master/pom.xml'
+                }
+            }
+        }
+
         stage('compile') {
             steps {
                 sh "mvn compile"
